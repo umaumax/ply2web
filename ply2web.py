@@ -82,6 +82,7 @@ def main():
         print("center point:", mean_point)
         pl.add_text(
             f"filepath: {args.ply_file}\n# of points: {len(mesh.points)}\n median point: {median_point}",
+            position='lower_left',
             color='#FFFFFF',
             font_size=10)
 
