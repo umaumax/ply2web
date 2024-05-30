@@ -36,7 +36,7 @@ def main():
         action='store_true',
         help='Automatically spawn a web browser')
     parser.add_argument(
-        '--no-web-serve',
+        '--web-serve',
         action='store_true',
         help='Disable a web browser')
     parser.add_argument('-o', '--output-filepath', default='',
@@ -105,11 +105,15 @@ def main():
             ):
                 view = plotter_ui(pl)
                 ctrl.view_update = view.update
-    if not args.no_web_serve:
+    if args.web_serve:
         server.start(
             port=args.port,
             host=args.bind,
             open_browser=args.spawn_web)
+
+    if not args.web_serve and not args.output_filepath and not args.spawn_host:
+        parser.print_help()
+        sys.exit(1)
 
 
 if __name__ == '__main__':
