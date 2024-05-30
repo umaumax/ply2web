@@ -1,3 +1,4 @@
+imageio
 pyvista
 trame
 trame-vtk

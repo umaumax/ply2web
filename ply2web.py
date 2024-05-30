@@ -39,16 +39,19 @@ def main():
         '--web-serve',
         action='store_true',
         help='Disable a web browser')
+    parser.add_argument(
+        '--animation',
+        action='store_true',
+        help='Set animation')
     parser.add_argument('-o', '--output-filepath', default='',
                         help='Valid file format are (.png)')
     args = parser.parse_args()
 
-    pv.OFF_SCREEN = not args.spawn_host
-
     server = get_server()
     state, ctrl = server.state, server.controller
 
-    pl = pv.Plotter()
+    # pl = pv.Plotter()
+    pl = pv.Plotter(off_screen=not args.spawn_host)
 
     if args.ply_file:
         mesh = pv.read(args.ply_file)
@@ -57,13 +60,31 @@ def main():
         except Exception as e:
             print(f"[WARN] {repr(e)}")
             pl.add_mesh(mesh)
+        print(f"mesh.length: {mesh.length}")
 
     if args.output_filepath:
         pl.screenshot(args.output_filepath)
 
+    if args.animation:
+        # Shift the plane up/down from the center of the scene by this amount.
+        shift = 0.0
+        factor = 2.0  # A scaling factor when building the orbital extent.
+        viewup = [0.0, 0.0, 0.0]  # The normal to the orbital plane.
+        path = pl.generate_orbital_path(
+            factor=factor, shift=shift, viewup=viewup, n_points=36)
+        if args.output_filepath:
+            fps = 9.0
+            pl.open_gif(args.output_filepath, fps=fps)
+        else:
+            print("[WARN] --output-filepath is empty")
+        focus = [0.0, 0.0, 0.0]
+        pl.orbit_on_path(
+            path, write_frames=True, viewup=[
+                0, 0, 1], step=1.0 / fps, progress_bar=True)
+
     if args.spawn_host:
-        pl.show()
-        # pl.close()
+        pl.show(auto_close=False)
+        pl.close()
         sys.exit(0)
 
     @server.state.change("file_exchange")
