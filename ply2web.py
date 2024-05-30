@@ -35,6 +35,10 @@ def main():
         '--spawn-web',
         action='store_true',
         help='Automatically spawn a web browser')
+    parser.add_argument(
+        '--no-web-serve',
+        action='store_true',
+        help='Disable a web browser')
     parser.add_argument('-o', '--output-filepath', default='',
                         help='Valid file format are (.png)')
     args = parser.parse_args()
@@ -51,7 +55,7 @@ def main():
         try:
             pl.add_mesh(mesh, scalars='RGB', rgb=True)
         except Exception as e:
-            print(repr(e))
+            print(f"[WARN] {repr(e)}")
             pl.add_mesh(mesh)
 
     if args.output_filepath:
@@ -75,7 +79,7 @@ def main():
             try:
                 pl.add_mesh(mesh, scalars='RGB', rgb=True, name=file.name)
             except Exception as e:
-                print(repr(e))
+                print(f"[WARN] {repr(e)}")
                 pl.add_mesh(mesh, name=file.name)
             pl.reset_camera()
 
@@ -101,7 +105,11 @@ def main():
             ):
                 view = plotter_ui(pl)
                 ctrl.view_update = view.update
-    server.start(port=args.port, host=args.bind, open_browser=args.spawn_web)
+    if not args.no_web_serve:
+        server.start(
+            port=args.port,
+            host=args.bind,
+            open_browser=args.spawn_web)
 
 
 if __name__ == '__main__':
